@@ -25,7 +25,7 @@ public class MessageReceiver {
     @RabbitListener(
             bindings = @QueueBinding(
                     value = @Queue(value = "alert-queue0",durable="true"),
-                    exchange = @Exchange(name = "alert-exchange0",durable = "true",type="topic"),
+                    exchange = @Exchange(name = "alert-exchange0",durable = "true",type="fanout"),
                     key = "alert.*"
             )
     )
@@ -33,6 +33,35 @@ public class MessageReceiver {
     public void onOrderMessage0(@Payload AlertMessage message,
                                @Headers Map<String,Object> headers,
                                Channel channel) throws Exception{
+        String consumerNum = "Consumer with priority 0";
+        receiveMessage(consumerNum,message,headers,channel);
+    }
+    @RabbitListener(
+            bindings = @QueueBinding(
+                    value = @Queue(value = "alert-queue3",durable="true"),
+                    exchange = @Exchange(name = "alert-exchange0",durable = "true",type="fanout"),
+                    key = "alert.*"
+            )
+    )
+    @RabbitHandler
+    public void onOrderMessage3(@Payload AlertMessage message,
+                                @Headers Map<String,Object> headers,
+                                Channel channel) throws Exception{
+        String consumerNum = "Consumer with priority 0";
+        receiveMessage(consumerNum,message,headers,channel);
+    }
+
+    @RabbitListener(
+            bindings = @QueueBinding(
+                    value = @Queue(value = "alert-queue4",durable="true"),
+                    exchange = @Exchange(name = "alert-exchange0",durable = "true",type="fanout"),
+                    key = "alert.*"
+            )
+    )
+    @RabbitHandler
+    public void onOrderMessage4(@Payload AlertMessage message,
+                                @Headers Map<String,Object> headers,
+                                Channel channel) throws Exception{
         String consumerNum = "Consumer with priority 0";
         receiveMessage(consumerNum,message,headers,channel);
     }
@@ -44,6 +73,8 @@ public class MessageReceiver {
                     key = "alert.*"
             )
     )
+
+
     @RabbitHandler
     public void onOrderMessage1(@Payload AlertMessage message,
                                @Headers Map<String,Object> headers,
@@ -69,7 +100,7 @@ public class MessageReceiver {
         receiveMessage(consumerNum,message,headers,channel);
     }
 
-    public void receiveMessage(String consumer,AlertMessage message,Map<String,Object> headers,
+    private void receiveMessage(String consumer,AlertMessage message,Map<String,Object> headers,
                                Channel channel) throws Exception{
         System.err.println("----------received message-----------");
         System.err.println("message ID: "+message.getMessageId());
