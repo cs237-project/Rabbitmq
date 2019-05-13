@@ -12,7 +12,7 @@ public class MybatisMapperScanerConfig {
     public MapperScannerConfigurer mapperScannerConfigurer() {
         MapperScannerConfigurer mapperScannerConfigurer = new MapperScannerConfigurer();
         mapperScannerConfigurer.setSqlSessionFactoryBeanName("sqlSessionFactory");
-        mapperScannerConfigurer.setBasePackage("com.imooc.mq.mapper");
+        mapperScannerConfigurer.setBasePackage("com.securityalertsystem.rabbitmq.mapper");
         return mapperScannerConfigurer;
     }
 }

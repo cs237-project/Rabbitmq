@@ -21,7 +21,7 @@ public class TaskSchedulerConfig  implements SchedulingConfigurer {
      * 定时任务线程池
      * @return
      */
-    @Bean(destroyMethod = "shutdown")
+    @Bean(destroyMethod="shutdown")
     public Executor taskScheduler(){
         return Executors.newScheduledThreadPool(100);
     }

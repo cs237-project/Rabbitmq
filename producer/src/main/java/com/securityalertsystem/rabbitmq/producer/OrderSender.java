@@ -28,6 +28,7 @@ public class OrderSender {
             if(ack){
                 brokerMessageLogMapper.changeBrokerMessageLogStatus(messageId, Constants.ORDER_SEND_SUCCESS,new Date());
             }else{
+                //Maybe the queue is full
                 System.err.println("exception process");
             }
         }

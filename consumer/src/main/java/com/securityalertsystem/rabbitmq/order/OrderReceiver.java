@@ -7,11 +7,15 @@ import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import com.rabbitmq.client.Channel;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-@Component
+
 public class OrderReceiver {
+
+    Order receivedOrder;
 
     @RabbitListener(
             bindings = @QueueBinding(
@@ -27,9 +31,14 @@ public class OrderReceiver {
         //Consumer Operation
         System.err.println("----------received message-----------");
         System.err.println("order ID: "+order.getId());
-
+        receivedOrder = order;
         Long deliveryTag = (Long)headers.get(AmqpHeaders.DELIVERY_TAG);
         channel.basicAck(deliveryTag,false);
+    }
+
+    @RequestMapping("/message")
+    public String hello(){
+        return receivedOrder.getId();
     }
 
 }
