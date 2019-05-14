@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+
 @Component
-@RestController
 public class MessageReceiver {
 
     private List<String> receivedMessages = new ArrayList<>();
