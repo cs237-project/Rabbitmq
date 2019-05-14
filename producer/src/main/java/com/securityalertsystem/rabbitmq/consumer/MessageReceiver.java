@@ -11,6 +11,7 @@ import com.securityalertsystem.rabbitmq.Controller.SenderController;
 import com.securityalertsystem.rabbitmq.entity.AlertMessage;
 import com.securityalertsystem.rabbitmq.entity.Client;
 import com.securityalertsystem.rabbitmq.repository.ClientRepository;
+import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.amqp.rabbit.annotation.*;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class MessageReceiver {
 
 
     private List<String> receivedMessages = new ArrayList<>();
+    private List<Integer> high_client = new ArrayList<>();
+    private List<Integer> mid_client = new ArrayList<>();
+    private List<Integer> low_client = new ArrayList<>();
 
 
 
@@ -52,54 +56,49 @@ public class MessageReceiver {
 //        receiveMessage(consumerNum,message,headers,channel);
 //    }
 
-    public void onAlertMessage(String exchangeName,String queueName) throws Exception{
+    public void onAlertMessage(String exchangeName,int clientId,int priority) throws Exception{
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
-
-        channel.exchangeDeclare(exchangeName,"fanout");
+        String queueName = "queue"+clientId;
+        channel.exchangeDeclare(exchangeName,"fanout",true);
+        channel.queueDeclare(queueName, true, false, true, null); //durable, automatically deleted
         channel.queueBind(queueName,exchangeName,"");
 
         DeliverCallback deliverCallback = (consumerTag, delivery)->{
-            String message = new String(delivery.getBody(),"UTF-8");
-            receivedMessages.add(message);
+            AlertMessage message =  SerializationUtils.deserialize(delivery.getBody());
+
+            receivedMessages.add(transferMessage(clientId,priority,message));
         };
         channel.basicConsume(queueName,true,deliverCallback,consumerTag->{});
 
     }
 
 
-//    private void receiveMessage(String consumer,AlertMessage message,Map<String,Object> headers,
-//                                Channel channel) throws Exception{
-//        System.err.println("----------received message-----------");
-//        System.err.println("message ID: "+message.getMessageId());
-//        message.setReceivedTime(System.currentTimeMillis()-message.getReceivedTime());
-//        String result = "<p>"+consumer+" "+
-//                "MessageId: "+message.getMessageId()+" "+
-//                "Location: "+message.getLocation()+" "+
-//                "Emergency Type: "+message.getType()+" "+
-//                "Happen Time: "+message.getHappenTime()+" " +
-//                "Time gap of receiving message: "+message.getReceivedTime()+"</p>";
-//        receivedMessages.add(result);
-//
-//        Long deliveryTag = (Long)headers.get(AmqpHeaders.DELIVERY_TAG);
-//        channel.basicAck(deliveryTag,false);
-//    }
+    private String transferMessage(int consumer,int priority,AlertMessage message){
+        System.err.println("----------received message-----------");
+        System.err.println("message ID: "+message.getMessageId());
+        message.setReceivedTime(System.currentTimeMillis()-message.getReceivedTime());
+        String result = "<p>"+consumer+" "+"priority="+priority+" "+
+                "MessageId: "+message.getMessageId()+" "+
+                "Location: "+message.getLocation()+" "+
+                "Emergency Type: "+message.getType()+" "+
+                "Happen Time: "+message.getHappenTime()+" " +
+                "Time gap of receiving message: "+message.getReceivedTime()+"</p>";
+        return result;
+
+    }
 
     @RequestMapping("/message")
     public String getMsg(){
         if(clients.size()==0){
             return "Need get clients information. Please input url \"/getClients\"";
         }
-        boolean useCurLoc;
-        if(SenderController.TYPE.equals(Constants.FIRE)||
-                SenderController.TYPE.equals(Constants.EARTHQUAKE)||
-                SenderController.TYPE.equals(Constants.FLOODING)){
-            useCurLoc = false;
-        }else{
-            useCurLoc = true;
-        }
+        boolean useCurLoc = SenderController.TYPE.equals(Constants.GUNSHOT)||
+                SenderController.TYPE.equals(Constants.ROBBERY)||
+                SenderController.TYPE.equals(Constants.SEXASSUALT);
+
         for(Client client:clients){
             double distance;
             if(useCurLoc){
@@ -110,24 +109,33 @@ public class MessageReceiver {
                         Math.pow(SenderController.longitude-client.getAddressy(),2);
             }
 
-            if(distance<=3){
-                try {
-                    onAlertMessage("alert-exchange0","queue"+client.getClientId());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }else if(distance>3 && distance<=10){
-                try {
-                    onAlertMessage("alert-exchange1","queue"+client.getClientId());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if(distance<=40){
+                    high_client.add(client.getClientId());
+            }else if(distance>40 && distance<=100){
+                    mid_client.add(client.getClientId());
             }else{
-                try {
-                    onAlertMessage("alert-exchange2","queue"+client.getClientId());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                    low_client.add(client.getClientId());
+            }
+        }
+        for(int id:high_client){
+            try {
+                onAlertMessage("alert-exchange0",id,0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        for(int id:mid_client){
+            try {
+                onAlertMessage("alert-exchange0",id,0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        for(int id:low_client){
+            try {
+                onAlertMessage("alert-exchange0",id,0);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 

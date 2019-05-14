@@ -5,13 +5,14 @@ import com.securityalertsystem.rabbitmq.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/client")
 public class ClientController {
 
-    public static List<Client> clients;
+    public static List<Client> clients = new ArrayList<>();
 
     @Autowired
     ClientRepository clientRepository;

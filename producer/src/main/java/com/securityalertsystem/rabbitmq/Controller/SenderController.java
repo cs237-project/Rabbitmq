@@ -13,12 +13,12 @@ import java.util.Date;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/message")
+@RequestMapping("/messageSender")
 public class SenderController {
 
     public static String TYPE;
-    public static double latitude= 45+Math.random()*30;
-    public static double longitude = 40+Math.random()*30;
+    public static double latitude;
+    public static double longitude;
 
     @Autowired
     private AlertSender alertSender;
@@ -29,12 +29,17 @@ public class SenderController {
 
 
 
-    @RequestMapping(value="/send/{type}")
+    @RequestMapping(value="/send")
+    public void sendAlerts(){
+        sendAlertNearby(TYPE);
+        sendAlertMid(TYPE);
+        sendAlertFaraway(TYPE);
+    }
+    @RequestMapping(value="/create/{type}")
     public void sendAlerts(@PathVariable(name = "type") String type){
         TYPE = type;
-        sendAlertNearby(type);
-        sendAlertMid(type);
-        sendAlertFaraway(type);
+        latitude = 45+Math.random()*30;
+        longitude = 40+Math.random()*30;
     }
 
     public void sendAlertNearby(String type){ //Maybe 1-3 miles
