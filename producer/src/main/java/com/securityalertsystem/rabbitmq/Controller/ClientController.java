@@ -12,14 +12,18 @@ import java.util.List;
 @RequestMapping("/client")
 public class ClientController {
 
-    public static List<Client> clients = new ArrayList<>();
 
     @Autowired
     ClientRepository clientRepository;
 
     @GetMapping(value = "/getClients" )
-    public void getClientList(){
-        clients = clientRepository.findAll();
+    public String getClientList(){
+        List<Client> clients = clientRepository.findAll();
+        String result = "";
+        for(Client client:clients){
+            result+="<p>Client"+client.getClientId()+"</p>";
+        }
+        return result;
     }
 
     @RequestMapping(value = "/addClients/{number}")

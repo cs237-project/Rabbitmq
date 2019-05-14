@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequestMapping("/messageSender")
 public class SenderController {
 
-    public static String TYPE;
+    public static String TYPE = "";
     public static double latitude;
     public static double longitude;
 
@@ -30,16 +30,18 @@ public class SenderController {
 
 
     @RequestMapping(value="/send")
-    public void sendAlerts(){
+    public String sendAlerts(){
         sendAlertNearby(TYPE);
         sendAlertMid(TYPE);
         sendAlertFaraway(TYPE);
+        return "Messages Sent Successfully";
     }
     @RequestMapping(value="/create/{type}")
-    public void sendAlerts(@PathVariable(name = "type") String type){
+    public String createAlerts(@PathVariable(name = "type") String type){
         TYPE = type;
         latitude = 45+Math.random()*30;
         longitude = 40+Math.random()*30;
+        return "Messages Created Successfully";
     }
 
     public void sendAlertNearby(String type){ //Maybe 1-3 miles

@@ -1,6 +1,5 @@
 package com.securityalertsystem.rabbitmq.Controller;
 
-import com.securityalertsystem.rabbitmq.consumer.MessageReceiver;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

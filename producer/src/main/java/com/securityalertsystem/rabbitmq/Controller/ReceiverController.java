@@ -1,4 +1,4 @@
-package com.securityalertsystem.rabbitmq.consumer;
+package com.securityalertsystem.rabbitmq.Controller;
 
 
 import com.rabbitmq.client.Channel;
@@ -26,12 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.securityalertsystem.rabbitmq.Controller.ClientController.clients;
+import static com.securityalertsystem.rabbitmq.Controller.SenderController.TYPE;
 
 
 @Component
 @RestController
-public class MessageReceiver {
+@RequestMapping("/messageReceiver")
+public class ReceiverController {
+    @Autowired
+    ClientRepository clientRepository;
 
 
     private List<String> receivedMessages = new ArrayList<>();
@@ -90,14 +93,18 @@ public class MessageReceiver {
 
     }
 
-    @RequestMapping("/message")
-    public String getMsg(){
+    @RequestMapping("/createQueue")
+    public String createQueue(){
+        List<Client> clients = clientRepository.findAll();
         if(clients.size()==0){
             return "Need get clients information. Please input url \"/getClients\"";
         }
-        boolean useCurLoc = SenderController.TYPE.equals(Constants.GUNSHOT)||
-                SenderController.TYPE.equals(Constants.ROBBERY)||
-                SenderController.TYPE.equals(Constants.SEXASSUALT);
+        if(TYPE.equals("")){
+            return "There is no Message";
+        }
+        boolean useCurLoc = TYPE.equals(Constants.GUNSHOT)||
+                TYPE.equals(Constants.ROBBERY)||
+                TYPE.equals(Constants.SEXASSUALT);
 
         for(Client client:clients){
             double distance;
@@ -110,11 +117,11 @@ public class MessageReceiver {
             }
 
             if(distance<=40){
-                    high_client.add(client.getClientId());
+                high_client.add(client.getClientId());
             }else if(distance>40 && distance<=100){
-                    mid_client.add(client.getClientId());
+                mid_client.add(client.getClientId());
             }else{
-                    low_client.add(client.getClientId());
+                low_client.add(client.getClientId());
             }
         }
         for(int id:high_client){
@@ -126,20 +133,23 @@ public class MessageReceiver {
         }
         for(int id:mid_client){
             try {
-                onAlertMessage("alert-exchange0",id,0);
+                onAlertMessage("alert-exchange1",id,1);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         for(int id:low_client){
             try {
-                onAlertMessage("alert-exchange0",id,0);
+                onAlertMessage("alert-exchange2",id,2);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        return "Queue Created!";
+    }
 
-
+    @RequestMapping("/getMsg")
+    public String getMsg(){
         String result = "";
         if(receivedMessages.size()>0){
             for(String receivedMessage:receivedMessages){
