@@ -1,7 +1,7 @@
 package com.securityalertsystem;
 
 import com.securityalertsystem.rabbitmq.entity.AlertMessage;
-import com.securityalertsystem.rabbitmq.producer.alertSender;
+import com.securityalertsystem.rabbitmq.producer.AlertSender;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +14,10 @@ import java.util.UUID;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class DemoApplicationTests {
-    private static long counter = 0;
 
 
     @Autowired
-    private alertSender alertSender;
+    private AlertSender alertSender;
 
 
     private static String happenTime = new Date().toString();
