@@ -6,25 +6,17 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 import com.securityalertsystem.rabbitmq.Constants.Constants;
-import com.securityalertsystem.rabbitmq.Controller.ClientController;
-import com.securityalertsystem.rabbitmq.Controller.SenderController;
 import com.securityalertsystem.rabbitmq.entity.AlertMessage;
 import com.securityalertsystem.rabbitmq.entity.Client;
 import com.securityalertsystem.rabbitmq.repository.ClientRepository;
 import org.apache.commons.lang3.SerializationUtils;
-import org.springframework.amqp.rabbit.annotation.*;
-import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.Headers;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.securityalertsystem.rabbitmq.Controller.SenderController.TYPE;
 
@@ -59,7 +51,7 @@ public class ReceiverController {
 //        receiveMessage(consumerNum,message,headers,channel);
 //    }
 
-    public void onAlertMessage(String exchangeName,int clientId,int priority) throws Exception{
+    private void onAlertMessage(String exchangeName,int clientId,int priority) throws Exception{
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
